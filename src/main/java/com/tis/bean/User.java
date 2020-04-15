@@ -17,7 +17,7 @@ public class User{
 	@Column
 	private Integer type;
 	@Column
-	private String username;
+	private String userName;
 
 }
 
