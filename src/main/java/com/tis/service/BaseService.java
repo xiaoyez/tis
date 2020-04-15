@@ -13,8 +13,9 @@ public abstract class BaseService<B, M extends Mapper<B>> {
 
     public B getByPrimaryKey(Object key) {
         B bean = mapper.selectByPrimaryKey(key);
-        if (bean == null)
+        if (bean == null){
             return null;
+        }
         return bean;
     }
 
@@ -25,15 +26,17 @@ public abstract class BaseService<B, M extends Mapper<B>> {
 
     public List<B> gets(B bean) {
         List<B> beans = mapper.select(bean);
-        if (beans == null)
+        if (beans == null){
             return null;
+        }
         return beans;
     }
 
     public List<B> getAll() {
         List<B> beans = mapper.selectAll();
-        if (beans == null)
+        if (beans == null) {
             return null;
+        }
         return beans;
     }
 
