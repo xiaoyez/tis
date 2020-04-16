@@ -14,16 +14,16 @@
       </li>
     </ul>
     <ul class="layui-nav fly-nav-user">
-      <li class="layui-nav-item" th:if="${(#session.getAttribute('student') != null) or (#session.getAttribute('teacher') != null)}">
-        <a class="fly-nav-avatar" th:if="${#session.getAttribute('student') != null}" href="/student/main">
-          <cite class="layui-hide-xs" >[[{{session.student.userName}}]]</cite>
+      <li class="layui-nav-item" th:if="${(#session != null) and ((#httpSession.getAttribute('student') != null) or (#httpSession.getAttribute('teacher') != null))}">
+        <a class="fly-nav-avatar" th:if="${(#session != null) and #httpSession.getAttribute('student') != null}" href="/student/main">
+          <cite class="layui-hide-xs" >[[${session.student.userName}]]</cite>
         </a>
-        <a class="fly-nav-avatar" th:if="${#session.getAttribute('teacher') != null}" href="/teacher/main">
-          <cite class="layui-hide-xs" >[[{{session.teacher.userName}}]]</cite>
+        <a class="fly-nav-avatar" th:if="${(#session != null) and #httpSession.getAttribute('teacher') != null}" href="/teacher/main">
+          <cite class="layui-hide-xs" >[[${session.teacher.userName}]]</cite>
         </a>
 
       </li>
-      <li class="layui-nav-item" th:unless="${(#session.getAttribute('student') != null) or (#session.getAttribute('teacher') != null)}">
+      <li class="layui-nav-item" th:unless="${(#session != null) and ((#httpSession.getAttribute('student') != null) or (#httpSession.getAttribute('teacher') != null))}">
         <a class="fly-nav-avatar" href="javascript:;">
           <cite class="layui-hide-xs" ><a href="/login">登录</a></cite>
         </a>
