@@ -11,9 +11,11 @@
 <body>
 
 <div th:include="/common/header::header"></div>
+<div class="layui-container fly-user-main">
+<div th:include="/common/student_menu::menu" style="display: inline-block;height: 100%"></div>
 
 
-<div class="layui-container fly-marginTop">
+<div class="layui-container fly-marginTop" style="width: 70%; display: inline-block">
   <div class="fly-panel fly-panel-user" pad20>
     <div class="layui-tab layui-tab-brief" lay-filter="user">
       <ul class="layui-tab-title">
@@ -62,7 +64,7 @@
     </div>
   </div>
 </div>
-
+</div>
 
 
 <script src="/static/layui/layui.js"></script>
