@@ -13,7 +13,7 @@ public class BaseDto<D> {
         this.success = success;
     }
 
-    private BaseDto(boolean success, String errorMsg) {
+    private BaseDto(String errorMsg,boolean success) {
         this.success = success;
         this.errorMsg = errorMsg;
     }
