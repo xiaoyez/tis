@@ -1,8 +1,8 @@
 package com.tis.common;
 
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class BaseDto<D> {
     private D data;
     private boolean success;

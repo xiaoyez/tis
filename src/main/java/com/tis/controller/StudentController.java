@@ -22,6 +22,12 @@ public class StudentController {
     @Resource
     private SignInService signInService;
 
+    /**
+     * 加入课堂
+     * @param lessonId 课堂Id
+     * @param session
+     * @return
+     */
     @GetMapping("/student/lesson/{lessonId}")
     public BaseDto<Lesson> joinLesson(@PathVariable Integer lessonId, HttpSession session){
         Lesson lesson = lessonService.getByPrimaryKey(lessonId);

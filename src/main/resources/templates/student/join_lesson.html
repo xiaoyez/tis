@@ -13,9 +13,9 @@
         class="layui-nav layui-nav-tree layui-inline" lay-filter="test"></ul>
     <div class="fly-panel fly-panel-user" pad20>
         <!--
-        <div class="fly-msg" style="margin-top: 15px;">
-          您的邮箱尚未验证，这比较影响您的帐号安全，<a href="activate.html">立即去激活？</a>
-        </div>
+            <div class="fly-msg" style="margin-top: 15px;">
+              您的邮箱尚未验证，这比较影响您的帐号安全，<a href="activate.html">立即去激活？</a>
+            </div>
         -->
     </div>
 </div>
@@ -31,7 +31,8 @@
 
             $.get("/student/lesson/"+lessonId,function (data) {
                 if (!data.success) {
-                    layer.confirm(data.errorMsg, {icon: 2},function () {
+                    layer.confirm(data.errorMsg, {icon: 2},function (index) {
+                        layer.close(index);
                         joinLesson();
                     });
 
