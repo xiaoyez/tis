@@ -68,8 +68,7 @@ public abstract class BaseService<B, M extends Mapper<B>> {
     }
 
     public int insert(B bean) {
-        mapper.insertSelective(bean);
-        return 0;
+        return mapper.insertSelective(bean);
     }
 
     public void update(B bean) {

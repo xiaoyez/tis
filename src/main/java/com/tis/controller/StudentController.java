@@ -33,18 +33,90 @@ public class StudentController {
         Lesson lesson = lessonService.getByPrimaryKey(lessonId);
         if (lesson != null)
         {
-            if(lesson.getState() != 1)
+            if(lesson.getState() == 0)
                 return BaseDto.failed("该课堂已下课");
             SignIn signIn = new SignIn();
             signIn.setLessonId(lessonId);
             User student = (User) session.getAttribute("student");
             signIn.setStudentId(student.getId());
+            SignIn signIn1 = signInService.get(signIn);
+            if (signIn1 != null)
+                return BaseDto.failed("你已加入该课堂");
             int insert = signInService.insert(signIn);
             if (insert > 0)
-                return BaseDto.success(null);
+                return BaseDto.success(lesson);
             else
                 return BaseDto.failed("进入课堂失败");
         }
         return BaseDto.failed("课堂不存在,请重新输入");
+    }
+
+    /**
+     * 签到
+     * @param lessonId 课堂Id
+     * @param session
+     * @return
+     */
+    @GetMapping("/student/signin/{lessonId}")
+    public BaseDto<Lesson> signIn(@PathVariable Integer lessonId, HttpSession session){
+        Lesson lesson = lessonService.getByPrimaryKey(lessonId);
+        if (lesson == null) {
+            return BaseDto.failed("该课程不存在");
+        }
+        if (lesson.getState() == 0) {
+            return BaseDto.failed("该课程已下课");
+        }
+        if (lesson.getState() == 1) {
+            return BaseDto.failed("签到未开启，请等待老师开始签到!");
+        }
+        User student = (User) session.getAttribute("student");
+        int studentId = student.getId();
+        SignIn signIn = new SignIn();
+        signIn.setLessonId(lessonId);
+        signIn.setStudentId(studentId);
+        signIn = signInService.get(signIn);
+        if (signIn == null) {
+            return BaseDto.failed("你并未加入这个课堂!");
+        }
+        signIn.setHasSigned(1);
+        signInService.update(signIn);
+        return BaseDto.success(null);
+    }
+
+    /**
+     * 退出课堂
+     * @param lessonId 课堂Id
+     * @param session
+     * @return
+     */
+    @GetMapping("/student/exit/{lessonId}")
+    public BaseDto<Lesson> exitLesson(@PathVariable Integer lessonId, HttpSession session) {
+        Lesson lesson = lessonService.getByPrimaryKey(lessonId);
+        if (lesson == null) {
+            return BaseDto.failed("该课程不存在");
+        }
+        if (lesson.getState() == 0) {
+            return BaseDto.failed("该课程已下课");
+        }
+        User student = (User) session.getAttribute("student");
+        int studentId = student.getId();
+        SignIn signIn = new SignIn();
+        signIn.setLessonId(lessonId);
+        signIn.setStudentId(studentId);
+        signIn = signInService.get(signIn);
+        if (signIn == null) {
+            return BaseDto.failed("你并未加入这个课堂!");
+        }
+        signInService.delete(signIn.getId());
+        return BaseDto.success(null);
+    }
+
+    @GetMapping("/student/lesson/hasJoin")
+    public BaseDto<Lesson> hasJoinLesson(HttpSession session){
+        User student = (User)session.getAttribute("student");
+        Lesson lesson = lessonService.getOnLessonByStudentId(student.getId());
+        if (lesson == null)
+            return BaseDto.failed("你还未加入任何课堂");
+        return BaseDto.success(lesson);
     }
 }

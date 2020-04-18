@@ -6,4 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class LessonService extends BaseService<Lesson,LessonMapper> {
+    public Lesson getOnLessonByStudentId(Integer studentId) {
+        return ((LessonMapper)mapper).getOnLessonByStudentId(studentId);
+    }
 }
