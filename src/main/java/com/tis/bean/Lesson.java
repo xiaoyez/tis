@@ -16,6 +16,8 @@ public class Lesson{
 	private Integer launcherId;
 	@Column
 	private java.time.LocalDateTime launchTime;
+	@Column
+	private Integer state;
 
 }
 
