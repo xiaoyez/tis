@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class PageController {
 
-    @GetMapping("/company/**")
+    @GetMapping("/teacher/**")
     public String toCompanyPage(HttpServletRequest request)
     {
         String url = request.getRequestURL().toString();
@@ -24,6 +24,8 @@ public class PageController {
     {
         return page;
     }
+
+
 //
 //
 @GetMapping("/member/**")
