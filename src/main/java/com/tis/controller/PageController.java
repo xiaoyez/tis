@@ -41,4 +41,12 @@ public String toMemberPage(HttpServletRequest request)
         url = url.substring(url.indexOf("/","https://".length()));
         return url;
     }
+
+    @GetMapping("/student/**")
+    public String toStudentPage(HttpServletRequest request)
+    {
+        String url = request.getRequestURL().toString();
+        url = url.substring(url.indexOf("/","https://".length()));
+        return url;
+    }
 }
