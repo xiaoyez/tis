@@ -29,9 +29,9 @@
                       style="width: 500px;height: 500px;margin-left: 200px">
             </div>
             <div id="buttonsDiv" style="display: none;text-align: center;margin-top: 10px">
-                <a href="" class="layui-btn">开启签到</a>
-                <a href="" class="layui-btn">开启答题</a>
-                <a href="" class="layui-btn">下课</a>
+                <button id="signInButton" onclick="beginSignIn()" class="layui-btn">开启签到</button>
+                <button class="layui-btn">开启答题</button>
+                <button class="layui-btn">下课</button>
             </div>
         </div>
     </div>
@@ -40,9 +40,17 @@
 <script src="/static/jquery-1.9.1.js"></script>
 <script src="/static/common.js"></script>
 <script>
+
+    var lessonId;
     //layui表单生成
     layui.use(['layer'], function() {
         var layer = layui.layer;
+
+        function checkLesson() {
+            $.get("/teacher")
+        }
+
+
         function createLesson()
         {
             var lessonName = prompt("请输入课程名");
@@ -61,6 +69,7 @@
                     });
                 }
                 else {
+                    lessonId = data.data.id;
                     $("#buttonsDiv").css("display","block");
                     $("#lessonTitleDiv").css("display","block");
                     $("#lessonTitle").html(data.data.name);
@@ -68,8 +77,17 @@
             });
         }
         createLesson();
+
+
     });
 
+    //开启签到
+    function beginSignIn() {
+        $.get("/teacher/lessonBeginSignIn/"+lessonId,function () {
+            $("#signInButton")[0].disabled = true;
+            $("#signInButton").html("已开启签到");
+        })
+    }
 
 
 
