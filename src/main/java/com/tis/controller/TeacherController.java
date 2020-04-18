@@ -6,6 +6,7 @@ import com.tis.bean.User;
 import com.tis.common.BaseDto;
 import com.tis.service.LessonService;
 import com.tis.service.SignInService;
+import jdk.nashorn.internal.objects.annotations.Getter;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,6 +24,12 @@ public class TeacherController {
     @Resource
     private SignInService signInService;
 
+    /**
+     * 创建课堂
+     * @param lessonName 课堂名称
+     * @param session
+     * @return
+     */
 
     @GetMapping("/teacher/lesson/{lessonName}")
     public BaseDto<Lesson> createLesson(@PathVariable String lessonName, HttpSession session){
@@ -42,5 +49,27 @@ public class TeacherController {
         lesson.setLauncherId(teacher.getId());
         lessonService.insert(lesson);
         return BaseDto.success(lesson);
+    }
+
+    /**
+     * 开启签到
+     * @param lessonId 课堂id
+     * @param session
+     * @return
+     */
+    @GetMapping("/teacher/lessonBeginSignIn/{lessonId}")
+    public BaseDto<Lesson> lessonBeginSignIn(@PathVariable Integer lessonId, HttpSession session){
+        Lesson lesson = lessonService.getByPrimaryKey(lessonId);
+        User teacher = (User) (session.getAttribute("teacher"));
+        if(lesson==null){
+            return BaseDto.failed("该课堂不存在");
+        }
+        if(!lesson.getLauncherId().equals(teacher.getId())){
+            return BaseDto.failed("您不能操作不是您创建的课堂");
+        }
+        lesson.setState(2);
+        lessonService.update(lesson);
+        return BaseDto.success(null);
+
     }
 }
