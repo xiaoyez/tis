@@ -72,4 +72,13 @@ public class TeacherController {
         return BaseDto.success(null);
 
     }
+
+//    @GetMapping("/teacher/checkLesson")
+//    public BaseDto<Lesson> checkLesson(HttpSession session){
+//        User teacher = (User) session.getAttribute("teacher");
+//        Lesson lesson = new Lesson();
+//        lesson.setLauncherId(teacher.getId());
+//        lessonService.get(lesson);
+//    }
+
 }

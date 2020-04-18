@@ -47,14 +47,20 @@
         var layer = layui.layer;
 
         function checkLesson() {
-            $.get("/teacher")
+            $.get("/teacher/checkLesson",function (data) {
+                if(data.success){
+                    initLesson(data.data);
+                }
+                else {
+                    createLesson();
+                }
+            })
         }
 
 
         function createLesson()
         {
             var lessonName = prompt("请输入课程名");
-            console.log(hasText(lessonName));
             if(!hasText(lessonName)){
                 layer.confirm("课程名不能为空", {icon: 2},function (index) {
                     layer.close(index);
@@ -70,13 +76,11 @@
                 }
                 else {
                     lessonId = data.data.id;
-                    $("#buttonsDiv").css("display","block");
-                    $("#lessonTitleDiv").css("display","block");
-                    $("#lessonTitle").html(data.data.name);
+                    initLesson(data.data);
                 }
             });
         }
-        createLesson();
+        checkLesson();
 
 
     });
@@ -87,6 +91,14 @@
             $("#signInButton")[0].disabled = true;
             $("#signInButton").html("已开启签到");
         })
+    }
+
+    //初始化当前课堂
+    function initLesson(lesson) {
+        lessonId = lesson.id;
+        $("#buttonsDiv").css("display","block");
+        $("#lessonTitleDiv").css("display","block");
+        $("#lessonTitle").html(lesson.name);
     }
 
 
