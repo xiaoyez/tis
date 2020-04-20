@@ -9,4 +9,8 @@ public class LessonService extends BaseService<Lesson,LessonMapper> {
     public Lesson getOnLessonByStudentId(Integer studentId) {
         return ((LessonMapper)mapper).getOnLessonByStudentId(studentId);
     }
+
+    public Lesson getOnLessonByTeacherId(Integer teacherId) {
+        return ((LessonMapper)mapper).getOnLessonByTeacherId(teacherId);
+    }
 }

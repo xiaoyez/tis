@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="/static/css/global.css">
 </head>
 <body>
+<div hidden id="questionDescDiv">
+    <textarea id="questionDescArea" name=""  cols="30" rows="10"></textarea>
+</div>
 <div th:include="/common/header::header"></div>
 <div class="layui-container fly-marginTop fly-user-main">
     <ul th:include="/common/teacher_menu::menu"
@@ -30,67 +33,58 @@
             </div>
             <div id="buttonsDiv" style="display: none;text-align: center;margin-top: 10px">
                 <button id="signInButton" onclick="beginSignIn()" class="layui-btn">开启签到</button>
-                <button class="layui-btn">开启答题</button>
-                <button class="layui-btn">下课</button>
+                <button id="answerButton" onclick="beginAnswer()" class="layui-btn">开启答题</button>
+                <button onclick="closeLesson()" class="layui-btn">下课</button>
             </div>
         </div>
     </div>
 </div>
+
 <script src="/static/layui/layui.js"></script>
 <script src="/static/jquery-1.9.1.js"></script>
 <script src="/static/common.js"></script>
 <script>
 
     var lessonId;
+    var layer;
     //layui表单生成
     layui.use(['layer'], function() {
-        var layer = layui.layer;
-
-        function checkLesson() {
-            $.get("/teacher/checkLesson",function (data) {
-                if(data.success){
-                    initLesson(data.data);
-                }
-                else {
-                    createLesson();
-                }
-            })
-        }
-
-
-        function createLesson()
-        {
-            var lessonName = prompt("请输入课程名");
-            if(!hasText(lessonName)){
-                layer.confirm("课程名不能为空", {icon: 2},function (index) {
-                    layer.close(index);
-                    createLesson();
-                });
-                return;
-            }
-            $.get("/teacher/lesson/"+lessonName,function (data) {
-                if (!data.success) {
-                    layer.confirm(data.errorMsg, {icon: 2},function () {
-                        createLesson();
-                    });
-                }
-                else {
-                    lessonId = data.data.id;
-                    initLesson(data.data);
-                }
-            });
-        }
-        checkLesson();
-
-
+        layer = layui.layer;
     });
 
-    //开启签到
-    function beginSignIn() {
-        $.get("/teacher/lessonBeginSignIn/"+lessonId,function () {
-            $("#signInButton")[0].disabled = true;
-            $("#signInButton").html("已开启签到");
+    function checkLesson() {
+        $.get("/teacher/checkLesson",function (data) {
+            if(data.success){
+                initLesson(data.data);
+            }
+            else {
+                createLesson();
+            }
         })
+    }
+
+
+    function createLesson()
+    {
+        var lessonName = prompt("请输入课程名");
+        if(!hasText(lessonName)){
+            layer.confirm("课程名不能为空", {icon: 2},function (index) {
+                layer.close(index);
+                createLesson();
+            });
+            return;
+        }
+        $.get("/teacher/lesson/"+lessonName,function (data) {
+            if (!data.success) {
+                layer.confirm(data.errorMsg, {icon: 2},function () {
+                    createLesson();
+                });
+            }
+            else {
+                lessonId = data.data.id;
+                initLesson(data.data);
+            }
+        });
     }
 
     //初始化当前课堂
@@ -100,6 +94,66 @@
         $("#lessonTitleDiv").css("display","block");
         $("#lessonTitle").html(lesson.name);
     }
+
+    checkLesson();
+
+    //开启答题
+    function beginAnswer() {
+        layer.open({
+            type:1,
+            title:"请输入问题描述：",
+            content: $('#questionDescDiv'),//这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+            cancel:function (index, layero) {
+                setQuestion();
+                layer.close(index);
+            }
+        });
+        $.get("/teacher/lessonBeginAnswer/"+lessonId,function () {
+            $("#answerButton")[0].disabled = true;
+            $("#answerButton").html("已开启答题");
+        })
+    }
+
+    //设置问题
+    function setQuestion() {
+        var questionDesc = $("#questionDescArea").val();
+        $.post("/teacher/setQuestion/",
+            {
+                lessonId:lessonId,
+                questionDesc:questionDesc
+            },
+            function (data) {
+            if(data.success){
+                layer.open({
+                    content: '问题添加成功',
+                    skin: 'demo-class'
+                });
+            }else {
+                layer.open({
+                    content: data.errorMsg ,
+                    skin: 'demo-class'
+                });
+            }}
+
+        )
+    }
+
+    //开启签到
+    function beginSignIn() {
+        $.get("/teacher/lessonBeginSignIn/"+lessonId,function () {
+            $("#signInButton")[0].disabled = true;
+            $("#signInButton").html("已开启签到");
+        })
+    }
+
+    //下课
+    function closeLesson() {
+        $.get("/teacher/closeLesson/"+lessonId,function () {
+            location.reload();
+        })
+    }
+
+
 
 
 
