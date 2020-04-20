@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 @Data
 public class Answer{
@@ -16,6 +17,9 @@ public class Answer{
 	private Integer studentId;
 	@Column
 	private String answer;
+
+	@Transient
+	private String studentName;
 
 }
 

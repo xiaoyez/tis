@@ -1,17 +1,19 @@
 package com.tis.controller;
 
-import com.tis.bean.Lesson;
-import com.tis.bean.SignIn;
-import com.tis.bean.User;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.tis.bean.*;
 import com.tis.common.BaseDto;
+import com.tis.service.AnswerService;
 import com.tis.service.LessonService;
+import com.tis.service.QuestionService;
 import com.tis.service.SignInService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 public class StudentController {
@@ -21,6 +23,12 @@ public class StudentController {
 
     @Resource
     private SignInService signInService;
+
+    @Resource
+    private AnswerService answerService;
+
+    @Resource
+    private QuestionService questionService;
 
     /**
      * 加入课堂
@@ -111,6 +119,11 @@ public class StudentController {
         return BaseDto.success(null);
     }
 
+    /**
+     * 获取学生已加入的课堂
+     * @param session
+     * @return
+     */
     @GetMapping("/student/lesson/hasJoin")
     public BaseDto<Lesson> hasJoinLesson(HttpSession session){
         User student = (User)session.getAttribute("student");
@@ -118,5 +131,57 @@ public class StudentController {
         if (lesson == null)
             return BaseDto.failed("你还未加入任何课堂");
         return BaseDto.success(lesson);
+    }
+
+    /**
+     * 获取回答列表
+     * @param session
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @GetMapping("/student/answer/list")
+    public BaseDto<PageInfo<Answer>> getAnswerByStudentId(HttpSession session,
+                                                @RequestParam(name = "pageNum",defaultValue = "1") Integer pageNum,
+                                                @RequestParam(name = "pageSize",defaultValue = "5") Integer pageSize){
+        User student = (User)session.getAttribute("student");
+        Lesson lesson = lessonService.getOnLessonByStudentId(student.getId());
+        if (lesson == null)
+            return BaseDto.failed("你还未加入任何课堂");
+        Question question = questionService.getOnQuestionByLessonId(lesson.getId());
+        PageInfo<Answer> answerPageInfo = answerService.getAnswersByLessonId(question.getId(),pageNum,pageSize);
+        return BaseDto.success(answerPageInfo);
+    }
+
+    /**
+     * 获取开启回答中的问题
+     * @param session
+     * @return
+     */
+    @GetMapping("/student/question/on")
+    public BaseDto<Map<String,Object>> getOnQuestionAndLesson(HttpSession session)
+    {
+        User student = (User)session.getAttribute("student");
+        Lesson lesson = lessonService.getOnLessonByStudentId(student.getId());
+        if (lesson == null)
+            return BaseDto.failed("你还未加入任何课堂");
+        Question question = questionService.getOnQuestionByLessonId(lesson.getId());
+        Map<String,Object> result = new HashMap<>();
+        result.put("lesson",lesson);
+        result.put("question",question);
+        return BaseDto.success(result);
+    }
+
+    @PostMapping("/student/answer/send")
+    public BaseDto<String> sendAnswer(HttpSession session, Answer answer){
+        User student = (User)session.getAttribute("student");
+        answer.setStudentId(student.getId());
+        Lesson lesson = lessonService.getOnLessonByStudentId(student.getId());
+        if (lesson == null)
+            return BaseDto.failed("你还未加入任何课堂");
+        Question question = questionService.getOnQuestionByLessonId(lesson.getId());
+        answer.setQuestionId(question.getId());
+        answerService.insert(answer);
+        return BaseDto.success(null);
     }
 }

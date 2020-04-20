@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -17,11 +17,11 @@
               您的邮箱尚未验证，这比较影响您的帐号安全，<a href="activate.html">立即去激活？</a>
             </div>
         -->
-        <div id="lessonTitleDiv" style="text-align: center;display: none">
+        <div id="lessonTitleDiv" style="text-align: center;">
             <span id="lessonTitle" style="font-size: 2em">
-
             </span>
         </div>
+
         <div class="layui-tab layui-tab-brief" lay-filter="user"
              style="text-align: center">
             <div>
@@ -30,40 +30,40 @@
             </div>
             <div id="buttonsDiv" style="display: none;text-align: center;margin-top: 10px">
                 <button id="signInBtn" class="layui-btn">签到</button>
-                <button id="toAnswerPageBtn" class="layui-btn">答题</button>
+                <a id="toAnswerPageBtn" href="/student/answer" class="layui-btn">答题</a>
                 <button id="exitLessonBtn" class="layui-btn">退出课堂</button>
             </div>
         </div>
+
     </div>
 </div>
 <script src="/static/jquery-1.9.1.js"></script>
 <script src="/static/layui/layui.js"></script>
 <script>
     var layer;
-    layui.use(['layer'], function(){
+    layui.use(['layer'], function () {
         layer = layui.layer;
 
     });
 
-    function joinLesson()
-    {
+    function joinLesson() {
         var lessonId = prompt("请输入课程号");
 
-        $.get("/student/lesson/"+lessonId,function (data) {
+        $.get("/student/lesson/" + lessonId, function (data) {
             if (!data.success) {
-                layer.confirm(data.errorMsg, {icon: 2},function (index) {
+                layer.confirm(data.errorMsg, {icon: 2}, function (index) {
                     layer.close(index);
                     joinLesson();
                 });
 
             }
             else {
-                $("#buttonsDiv").css("display","block");
-                $("#lessonTitleDiv").css("display","block");
+                $("#buttonsDiv").css("display", "block");
+                $("#lessonTitleDiv").css("display", "block");
                 $("#lessonTitle").html(data.data.name);
-                $("#signInBtn").attr("onclick","signin("+lessonId+")");
-                $("#exitLessonBtn").attr("onclick","exit("+lessonId+")");
-                $("#toAnswerPageBtn").attr("href","/student/answer?lessonId="+lessonId);
+                $("#signInBtn").attr("onclick", "signin(" + lessonId + ")");
+                $("#exitLessonBtn").attr("onclick", "exit(" + lessonId + ")");
+                $("#toAnswerPageBtn").attr("href", "/student/answer?lessonId=" + lessonId);
             }
         });
     }
@@ -71,16 +71,13 @@
     // joinLesson();
 
     function signin(lessonId) {
-        $.get("/student/signin/"+lessonId,function (data) {
-            if (!data.success)
-            {
-                layer.confirm(data.errorMsg, {icon: 2},function (index) {
+        $.get("/student/signin/" + lessonId, function (data) {
+            if (!data.success) {
+                layer.confirm(data.errorMsg, {icon: 2}, function (index) {
                     layer.close(index);
-                    joinLesson();
                 });
             }
-            else
-            {
+            else {
                 var signInBtn = $("#signInBtn");
                 signInBtn.html("已签到");
                 signInBtn[0].disabled = true;
@@ -89,16 +86,14 @@
     }
 
     function exit(lessonId) {
-        $.get("/student/lesson/exit/"+lessonId,function (data) {
-            if (!data.success)
-            {
-                layer.confirm(data.errorMsg, {icon: 2},function (index) {
+        $.get("/student/lesson/exit/" + lessonId, function (data) {
+            if (!data.success) {
+                layer.confirm(data.errorMsg, {icon: 2}, function (index) {
                     layer.close(index);
                 });
             }
-            else
-            {
-                layer.confirm("退出成功",{icon:1},function (index) {
+            else {
+                layer.confirm("退出成功", {icon: 1}, function (index) {
                     layer.close(inedx);
                     joinLesson();
                 })
@@ -107,18 +102,16 @@
     }
 
     function init() {
-        $.get("/student/lesson/hasJoin",function (data) {
-            if (data.success)
-            {
-                $("#buttonsDiv").css("display","block");
-                $("#lessonTitleDiv").css("display","block");
+        $.get("/student/lesson/hasJoin", function (data) {
+            if (data.success) {
+                $("#buttonsDiv").css("display", "block");
+                $("#lessonTitleDiv").css("display", "block");
                 $("#lessonTitle").html(data.data.name);
-                $("#signInBtn").attr("onclick","signin("+lessonId+")");
-                $("#exitLessonBtn").attr("onclick","exit("+lessonId+")");
-                $("#toAnswerPageBtn").attr("href","/student/answer?lessonId="+lessonId);
+                $("#signInBtn").attr("onclick", "signin(" + lessonId + ")");
+                $("#exitLessonBtn").attr("onclick", "exit(" + lessonId + ")");
+                $("#toAnswerPageBtn").attr("href", "/student/answer?lessonId=" + lessonId);
             }
-            else
-            {
+            else {
                 joinLesson();
             }
         });
