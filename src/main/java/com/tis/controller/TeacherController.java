@@ -1,22 +1,21 @@
 package com.tis.controller;
 
-import com.tis.bean.Lesson;
-import com.tis.bean.Question;
-import com.tis.bean.SignIn;
-import com.tis.bean.User;
+import com.github.pagehelper.PageInfo;
+import com.tis.bean.*;
 import com.tis.common.BaseDto;
+import com.tis.service.AnswerService;
 import com.tis.service.LessonService;
 import com.tis.service.QuestionService;
 import com.tis.service.SignInService;
 import jdk.nashorn.internal.objects.annotations.Getter;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 public class TeacherController {
@@ -29,6 +28,9 @@ public class TeacherController {
 
     @Resource
     private QuestionService questionService;
+
+    @Resource
+    private AnswerService answerService;
 
     /**
      * 创建课堂
@@ -116,27 +118,6 @@ public class TeacherController {
     }
 
     /**
-     *
-     * @param lessonId
-     * @param session
-     * @return
-     */
-    @GetMapping("/teacher/lessonBeginAnswer/{lessonId}")
-    public BaseDto<Lesson> lessonBeginAnswer(@PathVariable Integer lessonId, HttpSession session){
-        Lesson lesson = lessonService.getByPrimaryKey(lessonId);
-        User teacher = (User) (session.getAttribute("teacher"));
-        if(lesson==null){
-            return BaseDto.failed("该课堂不存在");
-        }
-        if(!lesson.getLauncherId().equals(teacher.getId())){
-            return BaseDto.failed("您不能操作不是您创建的课堂");
-        }
-        lesson.setAnswerState(1);
-        lessonService.update(lesson);
-        return BaseDto.success(null);
-    }
-
-    /**
      * 开启答题，添加问题
      * @param lessonId 课堂ID
      * @param questionDesc 问题描述
@@ -148,7 +129,7 @@ public class TeacherController {
         Question question = new Question();
         question.setLessonId(lessonId);
         question.setQuestionDesc(questionDesc);
-        if(questionDesc.equals("")){
+        if(!StringUtils.hasText(questionDesc)){
             return BaseDto.failed("问题描述不能为空");
         }
         boolean b = questionService.insert(question) > 0;
@@ -158,4 +139,58 @@ public class TeacherController {
         return BaseDto.failed("问题添加失败");
     }
 
+    /**
+     * 检查是否有正在进行问答的问题
+     * @param lessonId
+     * @return
+     */
+    @GetMapping("/teacher/checkQuestion/{lessonId}")
+    public BaseDto<Question> checkQuestion(@PathVariable Integer lessonId){
+        Question question = questionService.getOnQuestionByLessonId(lessonId);
+        if(question!=null){
+            return BaseDto.success(question);
+        }
+        return BaseDto.failed(null);
+    }
+
+    /**
+     * 获取开启回答中的问题
+     * @param session
+     * @return
+     */
+    @GetMapping("/teacher/question/on")
+    public BaseDto<Map<String,Object>> getOnQuestionAndLesson(HttpSession session)
+    {
+        User teacher = (User)session.getAttribute("teacher");
+        Lesson lesson = lessonService.getOnLessonByTeacherId(teacher.getId());
+        if (lesson == null){
+            return BaseDto.failed("你还未创建任何课堂");
+        }
+        Question question = questionService.getOnQuestionByLessonId(lesson.getId());
+        Map<String,Object> result = new HashMap<>();
+        result.put("lesson",lesson);
+        result.put("question",question);
+        return BaseDto.success(result);
+    }
+
+    /**
+     * 获取回答列表
+     * @param session
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @GetMapping("/teacher/answer/list")
+    public BaseDto<PageInfo<Answer>> getAnswerByStudentId(HttpSession session,
+                                                          @RequestParam(name = "pageNum",defaultValue = "1") Integer pageNum,
+                                                          @RequestParam(name = "pageSize",defaultValue = "5") Integer pageSize){
+        User teacher = (User)session.getAttribute("teacher");
+        Lesson lesson = lessonService.getOnLessonByTeacherId(teacher.getId());
+        if (lesson == null){
+            return BaseDto.failed("你还未创建任何课堂");
+        }
+        Question question = questionService.getOnQuestionByLessonId(lesson.getId());
+        PageInfo<Answer> answerPageInfo = answerService.getAnswersByLessonId(question.getId(),pageNum,pageSize);
+        return BaseDto.success(answerPageInfo);
+    }
 }

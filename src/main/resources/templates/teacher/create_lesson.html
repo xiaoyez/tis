@@ -14,7 +14,7 @@
 <div class="layui-container fly-marginTop fly-user-main">
     <ul th:include="/common/teacher_menu::menu"
         class="layui-nav layui-nav-tree layui-inline" lay-filter="test"></ul>
-    <div class="fly-panel fly-panel-user" pad20 >
+    <div id="mainDiv" class="fly-panel fly-panel-user" pad20 >
         <!--
         <div class="fly-msg" style="margin-top: 15px;">
           您的邮箱尚未验证，这比较影响您的帐号安全，<a href="activate.html">立即去激活？</a>
@@ -47,11 +47,13 @@
 
     var lessonId;
     var layer;
+
     //layui表单生成
     layui.use(['layer'], function() {
         layer = layui.layer;
     });
 
+    //检查是否有未下课课堂
     function checkLesson() {
         $.get("/teacher/checkLesson",function (data) {
             if(data.success){
@@ -63,7 +65,7 @@
         })
     }
 
-
+    //创建课堂
     function createLesson()
     {
         var lessonName = prompt("请输入课程名");
@@ -99,19 +101,29 @@
 
     //开启答题
     function beginAnswer() {
-        layer.open({
-            type:1,
-            title:"请输入问题描述：",
-            content: $('#questionDescDiv'),//这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
-            cancel:function (index, layero) {
-                setQuestion();
-                layer.close(index);
+        $.get("/teacher/checkQuestion/"+lessonId,function (data) {
+            if(data.success){
+                layer.open({
+                    content:"已开启答题",
+                    yes:function () {
+                        intoQuestion();
+                    }
+                })
+            }else {
+                layer.open({
+                    type:1,
+                    title:"请输入问题描述：",
+                    content: $('#questionDescDiv'),//这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+                    cancel:function (index, layero) {
+                        setQuestion();
+                        layer.close(index);
+                    }
+                });
             }
-        });
-        $.get("/teacher/lessonBeginAnswer/"+lessonId,function () {
-            $("#answerButton")[0].disabled = true;
-            $("#answerButton").html("已开启答题");
+
         })
+
+
     }
 
     //设置问题
@@ -137,6 +149,12 @@
 
         )
     }
+
+    //进入问题
+    function intoQuestion() {
+        window.location.href = "/teacher/question";
+    }
+
 
     //开启签到
     function beginSignIn() {

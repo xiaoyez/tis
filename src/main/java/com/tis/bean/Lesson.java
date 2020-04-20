@@ -1,7 +1,6 @@
 package com.tis.bean;
 
 import lombok.Data;
-import org.springframework.stereotype.Controller;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -19,8 +18,6 @@ public class Lesson{
 	private java.time.LocalDateTime launchTime;
 	@Column
 	private Integer state;
-	@Column
-	private Integer answerState;
 
 }
 

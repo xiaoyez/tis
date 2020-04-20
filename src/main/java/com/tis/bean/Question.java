@@ -14,6 +14,8 @@ public class Question{
 	private Integer lessonId;
 	@Column
 	private String questionDesc;
+	@Column
+	private Integer state;
 
 }
 
