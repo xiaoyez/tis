@@ -35,7 +35,9 @@
         layer = layui.layer;
         table = layui.table;
         upload = layui.upload;
+
         init();
+
     });
 
     function init() {
@@ -49,7 +51,7 @@
                     {field:'id',title:'id',width:200,fixed:'left'},
                     {field:'name',title:'课程名',width:400},
                     {field:'id',title:'操作',width:200,templet:function (data) {
-                            return '<a href="javascript:;" class="uploadHomework" style="text-decoration: underline;color: #1E9FFF;" onclick="uploadHomework('+data.id+')">上传</a>';
+                            return '<button id="id'+data.id+'" onclick="uploadHomework(12345)" class="uploadHomework" style="text-decoration: underline;color: #1E9FFF;">上传</button>';
                         }
                     }
                 ]
@@ -66,19 +68,24 @@
                     pageName:"pageNum"
                 }
             });
+            uploadHomework(123);
         })
     }
 
     function uploadHomework(lessonId) {
-        upload.render({
-            elem: '.uploadHomework' //绑定元素
+        var uploadInst = upload.render({
+            elem: '#id12345' //绑定元素
             ,url: '/student/homework/upload' //上传接口
             ,data:{lessonId:lessonId}
-            ,auto:true
+            ,accept:'file'
+            ,acceptMime:'*'
+            // ,auto:false
+            ,ext:"*"
             ,done: function(res){
                 //上传完毕回调
             }
             ,error: function(){
+                alert("132");
                 layer.msg('上传文件失败',{icon:2});
             }
         });
