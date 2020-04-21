@@ -184,4 +184,14 @@ public class StudentController {
         answerService.insert(answer);
         return BaseDto.success(null);
     }
+
+    @GetMapping("/student/lesson/list")
+    public BaseDto<PageInfo<Lesson>> getHasJoinLessons(HttpSession session,
+                                                       @RequestParam(name = "pageNum",defaultValue = "1") Integer pageNum,
+                                                       @RequestParam(name = "pageSize",defaultValue = "5") Integer pageSize)
+    {
+        User student = (User)session.getAttribute("student");
+        PageInfo<Lesson> lessonPageInfo = lessonService.getHasJoinLessonByStudentId(student.getId(),pageNum,pageSize);
+        return BaseDto.success(lessonPageInfo);
+    }
 }
