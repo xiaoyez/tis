@@ -18,4 +18,8 @@ public class LessonService extends BaseService<Lesson,LessonMapper> {
         PageHelper.startPage(pageNum,pageSize);
         return new PageInfo<>(((LessonMapper)mapper).getHasJoinLessonByStudentId(studentId));
     }
+
+    public Lesson getOnLessonByTeacherId(Integer teacherId) {
+        return ((LessonMapper)mapper).getOnLessonByTeacherId(teacherId);
+    }
 }

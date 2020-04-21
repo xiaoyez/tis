@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+    <link rel="stylesheet" href="/static/css/global.css">
+    <link rel="stylesheet" href="/static/css/common.css">
+
+</head>
+<body>
+<div th:include="/common/header::header"></div>
+<div class="layui-container fly-marginTop fly-user-main">
+    <ul th:include="/common/student_menu::menu"
+        class="layui-nav layui-nav-tree layui-inline" lay-filter="test"></ul>
+    <div class="fly-panel fly-panel-user" pad20>
+        <div id="lessonTitleDiv" style="text-align: center;display: none">
+            <span id="lessonTitle" style="font-size: 2em">
+                西方哲学史
+            </span>
+        </div>
+        <div>
+            <p>问题:</p>
+            <div style="margin-left: 2em" id="questionDescDiv"> 卢梭的主要思想 </div>
+        </div>
+        <hr>
+        <div class="comment-send ">
+
+        </div>
+        <hr>
+        <ul id="answerListUl">
+            <!--<li>-->
+            <!--<hr>-->
+            <!--<span></span>:<span></span>-->
+            <!--<hr>-->
+            <!--</li>-->
+        </ul>
+        <div  style="width: 100%;text-align: center">
+            <div id="pagination"  class="laypage-main">
+
+            </div>
+        </div>
+
+    </div>
+</div>
+<script src="/static/jquery-1.12.4.js"></script>
+<script src="/static/layui/layui.js"></script>
+<script src="/static/common.js"></script>
+<script>
+    var layer;
+    layui.use(['layer'], function () {
+        layer = layui.layer;
+
+    });
+
+
+
+    function init() {
+
+        $.get("/teacher/question/on", function (data) {
+            if (data.success) {
+                $("#buttonsDiv").css("display", "block");
+                $("#lessonTitleDiv").css("display", "block");
+                $("#lessonTitle").html(data.data.lesson.name);
+                $("#questionDescDiv").html(data.data.question.questionDesc);
+                initAnswerList(data.data.id);
+            }
+            else {
+                layer.confirm(data.errorMsg,{icon:2},function (index) {
+                    layer.close(index);
+                });
+            }
+        });
+    }
+
+    function initAnswerList(lessonId){
+        $.get("/teacher/answer/list",function (data) {
+            if (!data.success){
+                layer.confirm(data.errorMsg,{icon:2},function (index) {
+                    layer.close(index);
+                    location.href="/teacher/create_lesson";
+                })
+            } else {
+                var answerList = data.data.list;
+                var answerListText = "";
+
+                $.each(answerList,function (index, answer) {
+                    answerListText += "            <li>" +
+                        "                <span>"+answer.studentName+"</span>:<span>"+answer.answer+"</span>" +
+                        "                <hr>"+
+                        "            </li>";
+                });
+                var answerLis = $(answerListText);
+                $("#answerListUl").append(answerLis);
+                buildPagenationButtons(data.data.pages,data.data.pageNum);
+            }
+        });
+    }
+
+
+    function buildPagenationButtons(totalPageNum,currentPageNum){
+        //上一页
+        var prev = "<a href='javascript:;' onclick='toPage("+(currentPageNum-1)+")'>上一页</a>";
+        prev = $(prev);
+        if (currentPageNum == 1)
+            prev[0].disabled = true;
+        //下一页
+        var next = "<a href='javascript:;' onclick='toPage("+(currentPageNum+1)+")'>下一页</a>";
+        next = $(next);
+        if (currentPageNum == totalPageNum)
+            next[0].disabled = true;
+
+        var btns = "";
+        //构建按钮组
+        if (totalPageNum <= 5)
+        {
+            for (let i = 1; i <= totalPageNum; i++) {
+                if (i != currentPageNum)
+                    btns += "<button onclick='toPage("+i+")'>"+i+"</button>";
+                else{
+                    btns += "<span>"+i+"</span>";
+                }
+            }
+        }
+        else if (currentPageNum <= 3)
+        {
+            for (let i = 1; i <= 5; i++) {
+                if (i != currentPageNum)
+                    btns += "<button onclick='toPage("+i+")'>"+i+"</button>";
+                else{
+                    btns += "<span>"+i+"</span>";
+                }
+            }
+        }
+        else if (currentPageNum >= totalPageNum - 2)
+        {
+            for (let i = totalPageNum - 4; i <= totalPageNum; i++) {
+                if (i != currentPageNum)
+                    btns += "<button onclick='toPage("+i+")'>"+i+"</button>";
+                else{
+                    btns += "<span>"+i+"</span>";
+                }
+            }
+        }
+        else
+        {
+            for (let i = currentPageNum - 2; i <= currentPageNum + 2; i++) {
+                if (i != currentPageNum)
+                    btns += "<button onclick='toPage("+i+")'>"+i+"</button>";
+                else{
+                    btns += "<span>"+i+"</span>";
+                }
+            }
+        }
+        btns = $(btns);
+        $("#pagination").empty();
+        $("#pagination").append(prev)
+            .append(btns)
+            .append(next);
+
+
+    }
+
+    function toPage(pageNum){
+        $.get("/student/answer/list?pageNum="+pageNum,function (data) {
+            if (!data.success){
+                layer.confirm(data.errorMsg,{icon:2},function (index) {
+                    layer.close(index);
+                })
+            } else {
+                var answerList = data.data.list;
+                var answerListText = "";
+
+                $.each(answerList,function (index, answer) {
+                    answerListText += "            <li>" +
+                        "                <span>"+answer.studentName+"</span>:<span>"+answer.answer+"</span>" +
+                        "                <hr>"+
+                        "            </li>";
+                });
+                var answerLis = $(answerListText);
+                $("#answerListUl").empty();
+                $("#answerListUl").append(answerLis);
+                $("#answerListUl").remove($("ul hr:last-child"));
+                buildPagenationButtons(data.data.pages,data.data.pageNum);
+            }
+        });
+    }
+
+    init();
+</script>
+</body>
+</html>
