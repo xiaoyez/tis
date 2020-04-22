@@ -3,10 +3,7 @@ package com.tis.controller;
 import com.github.pagehelper.PageInfo;
 import com.tis.bean.*;
 import com.tis.common.BaseDto;
-import com.tis.service.AnswerService;
-import com.tis.service.LessonService;
-import com.tis.service.QuestionService;
-import com.tis.service.SignInService;
+import com.tis.service.*;
 import jdk.nashorn.internal.objects.annotations.Getter;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +28,12 @@ public class TeacherController {
 
     @Resource
     private AnswerService answerService;
+
+    @Resource
+    private InfoService infoService;
+
+    @Resource
+    private HomeworkService homeworkService;
 
     /**
      * 创建课堂
@@ -193,4 +196,35 @@ public class TeacherController {
         PageInfo<Answer> answerPageInfo = answerService.getAnswersByLessonId(question.getId(),pageNum,pageSize);
         return BaseDto.success(answerPageInfo);
     }
+
+    /**
+     * 发布信息
+     * @param title 信息标题
+     * @param content 信息正文
+     * @param session
+     * @return
+     */
+    @PostMapping("/teacher/publishInfo")
+    public BaseDto<Info> publishInfo(String title, String content, HttpSession session){
+        Info info = new Info();
+        User teacher = (User)session.getAttribute("teacher");
+        info.setTitle(title);
+        info.setContent(content);
+        info.setPublisherId(teacher.getId());
+        info.setPublishTime(LocalDateTime.now());
+        boolean b = infoService.insert(info) > 0;
+        if(b){
+            return BaseDto.success(null);
+        }
+        return BaseDto.failed(null);
+    }
+
+    @GetMapping("/teacher/homework/list")
+    public BaseDto<PageInfo<Homework>> getHomeworkList(HttpSession session,
+                                                       @RequestParam(name = "pageNum",defaultValue = "1") Integer pageNum,
+                                                       @RequestParam(name = "pageSize",defaultValue = "5") Integer pageSize){
+        User teacher = (User) session.getAttribute("teacher");
+        return BaseDto.success(new PageInfo<Homework>(homeworkService.getHomeworkList(teacher.getId(),pageNum,pageSize)));
+    }
+
 }
