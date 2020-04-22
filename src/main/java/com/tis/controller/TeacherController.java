@@ -32,6 +32,9 @@ public class TeacherController {
     @Resource
     private InfoService infoService;
 
+    @Resource
+    private HomeworkService homeworkService;
+
     /**
      * 创建课堂
      * @param lessonName 课堂名称
@@ -215,4 +218,13 @@ public class TeacherController {
         }
         return BaseDto.failed(null);
     }
+
+    @GetMapping("/teacher/homework/list")
+    public BaseDto<PageInfo<Homework>> getHomeworkList(HttpSession session,
+                                                       @RequestParam(name = "pageNum",defaultValue = "1") Integer pageNum,
+                                                       @RequestParam(name = "pageSize",defaultValue = "5") Integer pageSize){
+        User teacher = (User) session.getAttribute("teacher");
+        return BaseDto.success(new PageInfo<Homework>(homeworkService.getHomeworkList(teacher.getId(),pageNum,pageSize)));
+    }
+
 }
