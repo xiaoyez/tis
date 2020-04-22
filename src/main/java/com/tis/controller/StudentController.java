@@ -252,4 +252,6 @@ public class StudentController {
     public BaseDto<Info> getInfo(@PathVariable Integer infoId){
         return BaseDto.success(infoService.getByPrimaryKey(infoId));
     }
+
+
 }
