@@ -14,7 +14,7 @@
         class="layui-nav layui-nav-tree layui-inline" lay-filter="test"></ul>
     <div class="fly-panel fly-panel-user" pad20>
         <div style="display: inline-block">
-            <table id="lessonTable"></table>
+            <table id="infoTable"></table>
         </div>
         <div  style="width: 100%;text-align: center">
             <div id="pagination"  class="laypage-main">
@@ -41,19 +41,17 @@
     });
 
     function init() {
-        $.get("/student/lesson/list",function (data) {
+        $.get("/student/info/list",function (data) {
             table.render({
-                elem: '#lessonTable',
-                url: '/student/lesson/list' ,
+                elem: '#infoTable',
+                url: '/student/info/list' ,
                 pages: true,
                 cols:[
                     [
-                    {field:'id',title:'id',width:200,fixed:'left'},
-                    {field:'name',title:'课程名',width:400},
-                    {field:'id',title:'操作',width:200,templet:function (data) {
-                            return '<a type="button" id="upload'+data.id+'" style="color: #66ccff;" >上传作业</a>';
-                        }
-                    }
+                    {field:'title',title:'标题',width:600,templet:function (data) {
+                            return '<a href="/student/info_view?infoId='+data.id+'">'+data.title+'</a>'
+                        }},
+                    {field:'publisher',title:'发布者',width:200}
                 ]
                 ],
                 parseData:function (data) {
@@ -66,30 +64,6 @@
                 },
                 request:{
                     pageName:"pageNum"
-                },
-                done:function (data) {
-                    var count = data.count;
-                    var list = data.data;
-                    console.log(typeof (list));
-
-                    for (const lesson of list) {
-                        var option = {
-                            elem: '#upload'+ lesson.id //绑定元素
-                            ,url: '/student/homework/upload' //上传接口
-                            ,data:{lessonId:lesson.id}
-                            ,auto:true
-                            ,accept:"file"
-                            ,exts:".*"
-                            ,done: function(res){
-                                if (res.success)
-                                    layer.msg('上传作业完成',{icon:1});
-                            }
-                            ,error: function(){
-                                layer.msg('上传文件失败',{icon:2});
-                            }
-                        };
-                        upload.render(option);
-                    }
                 }
             });
         })

@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 @Data
 public class Info{
@@ -18,6 +19,9 @@ public class Info{
 	private java.time.LocalDateTime publishTime;
 	@Column
 	private Integer publisherId;
+
+	@Transient
+	private String publisher;
 
 }
 

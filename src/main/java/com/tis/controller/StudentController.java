@@ -4,14 +4,13 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import com.tis.bean.*;
 import com.tis.common.BaseDto;
-import com.tis.service.AnswerService;
-import com.tis.service.LessonService;
-import com.tis.service.QuestionService;
-import com.tis.service.SignInService;
+import com.tis.service.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +28,15 @@ public class StudentController {
 
     @Resource
     private QuestionService questionService;
+
+    @Resource
+    private HomeworkService homeworkService;
+
+    @Resource
+    private FileUploadService fileUploadService;
+
+    @Resource
+    private InfoService infoService;
 
     /**
      * 加入课堂
@@ -172,6 +180,12 @@ public class StudentController {
         return BaseDto.success(result);
     }
 
+    /**
+     * 发送答案
+     * @param session
+     * @param answer
+     * @return
+     */
     @PostMapping("/student/answer/send")
     public BaseDto<String> sendAnswer(HttpSession session, Answer answer){
         User student = (User)session.getAttribute("student");
@@ -185,6 +199,13 @@ public class StudentController {
         return BaseDto.success(null);
     }
 
+    /**
+     * 获取学生加入过的课堂列表
+     * @param session
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     @GetMapping("/student/lesson/list")
     public BaseDto<PageInfo<Lesson>> getHasJoinLessons(HttpSession session,
                                                        @RequestParam(name = "pageNum",defaultValue = "1") Integer pageNum,
@@ -193,5 +214,42 @@ public class StudentController {
         User student = (User)session.getAttribute("student");
         PageInfo<Lesson> lessonPageInfo = lessonService.getHasJoinLessonByStudentId(student.getId(),pageNum,pageSize);
         return BaseDto.success(lessonPageInfo);
+    }
+
+    /**
+     * 上传作业
+     * @param session
+     * @param lessonId
+     * @param file
+     * @return
+     */
+    @PostMapping("/student/homework/upload")
+    public BaseDto uploadHomework(HttpSession session, Integer lessonId, MultipartFile file) throws IOException {
+        User student = (User)session.getAttribute("student");
+        Homework homework = new Homework();
+        homework.setLessonId(lessonId);
+        homework.setStudentId(student.getId());
+        Map<String, String> map = fileUploadService.uploadFile(file);
+        homework.setHomeworkPath(map.get("filename"));
+        homework.setHomeworkFilename(map.get("originalFilename"));
+        homeworkService.insert(homework);
+        return BaseDto.success(null);
+    }
+
+    /**
+     * 获取老师发布的信息列表
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @GetMapping("/student/info/list")
+    public BaseDto<PageInfo<Info>> getInfoList(@RequestParam(name = "pageNum",defaultValue = "1") Integer pageNum,
+                                               @RequestParam(name = "pageSize",defaultValue = "5") Integer pageSize){
+        return BaseDto.success(infoService.getInfoList(pageNum,pageSize));
+    }
+
+    @GetMapping("/student/info/view/{infoId}")
+    public BaseDto<Info> getInfo(@PathVariable Integer infoId){
+        return BaseDto.success(infoService.getByPrimaryKey(infoId));
     }
 }
