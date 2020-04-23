@@ -41,13 +41,14 @@
 <script src="/static/layui/layui.js"></script>
 <script>
     var layer;
+    var lessonId;
     layui.use(['layer'], function () {
         layer = layui.layer;
 
     });
 
     function joinLesson() {
-        var lessonId = prompt("请输入课程号");
+        lessonId = prompt("请输入课程号");
 
         $.get("/student/lesson/" + lessonId, function (data) {
             if (!data.success) {
@@ -61,14 +62,28 @@
                 $("#buttonsDiv").css("display", "block");
                 $("#lessonTitleDiv").css("display", "block");
                 $("#lessonTitle").html(data.data.name);
-                $("#signInBtn").attr("onclick", "signin(" + lessonId + ")");
-                $("#exitLessonBtn").attr("onclick", "exit(" + lessonId + ")");
+                $("#signInBtn").click(function () {
+                    signin(lessonId);
+                });
+                $("#exitLessonBtn").click(function () {
+                    exit(lessonId);
+                });
+                // $("#signInBtn").attr("onclick", "signin(" + lessonId + ")");
+                // $("#exitLessonBtn").attr("onclick", "exit(" + lessonId + ")");
                 $("#toAnswerPageBtn").attr("href", "/student/answer?lessonId=" + lessonId);
             }
         });
     }
 
     // joinLesson();
+
+    function hasSignIn(lessonId) {
+        $.get("/student/hasSignin/"+lessonId,function (data) {
+            if (data.success)
+                $("#signInBtn").html("已签到");
+                $("#signInBtn")[0].disabled = true;
+        });
+    }
 
     function signin(lessonId) {
         $.get("/student/signin/" + lessonId, function (data) {
@@ -86,7 +101,7 @@
     }
 
     function exit(lessonId) {
-        $.get("/student/lesson/exit/" + lessonId, function (data) {
+        $.get("/student/exit/" + lessonId, function (data) {
             if (!data.success) {
                 layer.confirm(data.errorMsg, {icon: 2}, function (index) {
                     layer.close(index);
@@ -94,7 +109,7 @@
             }
             else {
                 layer.confirm("退出成功", {icon: 1}, function (index) {
-                    layer.close(inedx);
+                    layer.close(index);
                     joinLesson();
                 })
             }
@@ -104,12 +119,21 @@
     function init() {
         $.get("/student/lesson/hasJoin", function (data) {
             if (data.success) {
+                lessonId = data.data.id;
                 $("#buttonsDiv").css("display", "block");
                 $("#lessonTitleDiv").css("display", "block");
-                $("#lessonTitle").html(data.data.name);
-                $("#signInBtn").attr("onclick", "signin(" + lessonId + ")");
-                $("#exitLessonBtn").attr("onclick", "exit(" + lessonId + ")");
+                $("#lessonTitle").html(data.data.name);4
+                $("#signInBtn").click(function () {
+                    signin(lessonId);
+                });
+                $("#exitLessonBtn").click(function () {
+                    exit(lessonId);
+                });
+                // $("#signInBtn").attr("onclick", "signin(" + lessonId + ")");
+                // $("#exitLessonBtn").attr("onclick", "exit(" + lessonId + ")");
                 $("#toAnswerPageBtn").attr("href", "/student/answer?lessonId=" + lessonId);
+
+
             }
             else {
                 joinLesson();

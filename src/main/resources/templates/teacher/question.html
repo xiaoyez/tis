@@ -116,9 +116,9 @@
         {
             for (let i = 1; i <= totalPageNum; i++) {
                 if (i != currentPageNum)
-                    btns += "<button onclick='toPage("+i+")'>"+i+"</button>";
+                    btns += "<a href='javascript:;' onclick='toPage("+i+")'>"+i+"</a>"
                 else{
-                    btns += "<span>"+i+"</span>";
+                    btns += "<span class='laypage-curr'>"+i+"</span>";
                 }
             }
         }
@@ -126,9 +126,9 @@
         {
             for (let i = 1; i <= 5; i++) {
                 if (i != currentPageNum)
-                    btns += "<button onclick='toPage("+i+")'>"+i+"</button>";
+                    btns += "<a href='javascript:;' onclick='toPage("+i+")'>"+i+"</a>"
                 else{
-                    btns += "<span>"+i+"</span>";
+                    btns += "<span class='laypage-curr'>"+i+"</span>";
                 }
             }
         }
@@ -136,9 +136,9 @@
         {
             for (let i = totalPageNum - 4; i <= totalPageNum; i++) {
                 if (i != currentPageNum)
-                    btns += "<button onclick='toPage("+i+")'>"+i+"</button>";
+                    btns += "<a href='javascript:;' onclick='toPage("+i+")'>"+i+"</a>"
                 else{
-                    btns += "<span>"+i+"</span>";
+                    btns += "<span class='laypage-curr'>"+i+"</span>";
                 }
             }
         }
@@ -146,9 +146,9 @@
         {
             for (let i = currentPageNum - 2; i <= currentPageNum + 2; i++) {
                 if (i != currentPageNum)
-                    btns += "<button onclick='toPage("+i+")'>"+i+"</button>";
+                    btns += "<a href='javascript:;' onclick='toPage("+i+")'>"+i+"</a>"
                 else{
-                    btns += "<span>"+i+"</span>";
+                    btns += "<span class='laypage-curr'>"+i+"</span>";
                 }
             }
         }

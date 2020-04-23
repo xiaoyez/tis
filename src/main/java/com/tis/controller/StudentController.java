@@ -67,6 +67,20 @@ public class StudentController {
         return BaseDto.failed("课堂不存在,请重新输入");
     }
 
+    @GetMapping("/student/hasSignin/{lessonId}")
+    public BaseDto<Lesson> hasSignIn(@PathVariable Integer lessonId, HttpSession session){
+        User student = (User) session.getAttribute("student");
+        int studentId = student.getId();
+        SignIn signIn = new SignIn();
+        signIn.setLessonId(lessonId);
+        signIn.setStudentId(studentId);
+        signIn = signInService.get(signIn);
+        if (signIn == null) {
+            return BaseDto.failed("未签到");
+        } else {
+            return BaseDto.success(null);
+        }
+    }
     /**
      * 签到
      * @param lessonId 课堂Id

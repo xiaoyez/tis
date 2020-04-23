@@ -16,4 +16,8 @@ public class TopicService extends BaseService<Topic, TopicMapper> {
         PageHelper.startPage(pageNum,pageSize);
         return mapper.getTopicList();
     }
+
+    public Topic getByTopicId(Integer topicId) {
+        return mapper.getByTopicId(topicId);
+    }
 }

@@ -20,6 +20,12 @@
                 <a href="/common/discuss/topic_send"></a>
             </li>
         </ul>
+
+        <div  style="width: 100%;text-align: center">
+            <div id="pagination"  class="laypage-main">
+
+            </div>
+        </div>
     </div>
 </div>
 <script src="/static/jquery-1.12.4.js"></script>
@@ -28,24 +34,109 @@
         $.get("/common/topic/list",function (data) {
             if(data.success){
                 var topicPageInfo = data.data;
-                var topicList = topicPageInfo.list;
-                for(const topic of topicList){
-                    var li = "<li>\n" +
-                        "                <h2>\n" +
-                        "                    <a href=\"/common/discuss/topic_view?topicId="+topic.id+"\">"+topic.title+"</a>\n" +
-                        "                </h2>\n" +
-                        "                <div class=\"fly-list-info\">\n" +
-                        "                    <cite>"+topic.senderName+"</cite>\n" +
-                        "                    <span>"+topic.sendTime+"</span>\n" +
-                        "                </div>\n" +
-                        "            </li>";
-                    li = $(li);
-                    $("#topicList").append(li);
-                }
+                loadData(topicPageInfo);
+                buildPagenationButtons(data.data.pages,data.data.pageNum);
             }
         })
     }
+
+    function loadData(topicPageInfo){
+        var topicList = topicPageInfo.list;
+        for(const topic of topicList){
+            var li = "<li>\n" +
+                "                <h2>\n" +
+                "                    <a href=\"/common/discuss/topic_view?topicId="+topic.id+"\">"+topic.title+"</a>\n" +
+                "                </h2>\n" +
+                "                <div class=\"fly-list-info\">\n" +
+                "                    <cite>"+topic.senderName+"</cite>\n" +
+                "                    <span>"+topic.sendTime+"</span>\n" +
+                "                </div>\n" +
+                "            </li>";
+            li = $(li);
+            $("#topicList").append(li);
+        }
+
+    }
+
     init();
+    function buildPagenationButtons(totalPageNum,currentPageNum){
+        //上一页
+        var prev = "<a href='javascript:;' onclick='toPage("+(currentPageNum-1)+")'>上一页</a>";
+        prev = $(prev);
+        if (currentPageNum == 1)
+            prev[0].disabled = true;
+        //下一页
+        var next = "<a href='javascript:;' onclick='toPage("+(currentPageNum+1)+")'>下一页</a>";
+        next = $(next);
+        if (currentPageNum == totalPageNum)
+            next[0].disabled = true;
+
+        var btns = "";
+        //构建按钮组
+        if (totalPageNum <= 5)
+        {
+            for (let i = 1; i <= totalPageNum; i++) {
+                if (i != currentPageNum)
+                    btns += "<a href='javascript:;' onclick='toPage("+i+")'>"+i+"</a>"
+                else{
+                    btns += "<span class='laypage-curr'>"+i+"</span>";
+                }
+            }
+        }
+        else if (currentPageNum <= 3)
+        {
+            for (let i = 1; i <= 5; i++) {
+                if (i != currentPageNum)
+                    btns += "<a href='javascript:;' onclick='toPage("+i+")'>"+i+"</a>"
+                else{
+                    btns += "<span class='laypage-curr'>"+i+"</span>";
+                }
+            }
+        }
+        else if (currentPageNum >= totalPageNum - 2)
+        {
+            for (let i = totalPageNum - 4; i <= totalPageNum; i++) {
+                if (i != currentPageNum)
+                    btns += "<a href='javascript:;' onclick='toPage("+i+")'>"+i+"</a>"
+                else{
+                    btns += "<span class='laypage-curr'>"+i+"</span>";
+                }
+            }
+        }
+        else
+        {
+            for (let i = currentPageNum - 2; i <= currentPageNum + 2; i++) {
+                if (i != currentPageNum)
+                    btns += "<a href='javascript:;' onclick='toPage("+i+")'>"+i+"</a>"
+                else{
+                    btns += "<span class='laypage-curr'>"+i+"</span>";
+                }
+            }
+        }
+        btns = $(btns);
+        $("#pagination").empty();
+        $("#pagination").append(prev)
+            .append(btns)
+            .append(next);
+
+
+    }
+
+    function toPage(pageNum){
+        $.get("/common/topic/list?pageNum="+pageNum,function (data) {
+            if (!data.success){
+                layer.confirm(data.errorMsg,{icon:2},function (index) {
+                    layer.close(index);
+                })
+            } else {
+                if ((data.data.pageNum <= data.data.pages) && (data.data.pageNum > 0))
+                {
+                    loadData(data.data);
+                    buildPagenationButtons(data.data.pages,data.data.pageNum);
+                }
+            }
+        });
+    }
 </script>
 </body>
 </html>

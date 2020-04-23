@@ -3,14 +3,13 @@ package com.tis.bean;
 import lombok.Data;
 import org.springframework.stereotype.Controller;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.Transient;
+import javax.persistence.*;
 
 @Data
 public class Topic{
 	@Id
 	@Column
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	@Column
 	private String title;

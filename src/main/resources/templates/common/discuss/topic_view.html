@@ -16,8 +16,8 @@
         <br>
         <div class="detail-about">
             <div class="fly-detail-user">
-                <span style="margin-left: 40%">贤心</span>
-                <span style="margin-left: 5%">2017-11-30</span>
+                <span id="sender" style="margin-left: 40%">贤心</span>
+                <span id="sendTime" style="margin-left: 5%">2017-11-30</span>
             </div>
         </div>
         <br>
@@ -58,7 +58,16 @@
             </li>
         </ul>
 
+        <div  style="width: 100%;text-align: center">
+            <div id="pagination"  class="laypage-main">
+
+            </div>
+        </div>
+
         <div id="editor"></div>
+        <div style="text-align: center">
+            <button onclick="floorSend()" class="layui-btn" style="width: 10%">发送</button>
+        </div>
     </div>
 </div>
 <script src="/static/common.js"></script>
@@ -79,6 +88,12 @@
         init();
     })
     function init() {
+        getTopic();
+        getFloors();
+
+    }
+
+    function getTopic() {
         $.get("/common/topicView/"+topicId,function (data) {
             if (!data.success){
                 layer.confirm(data.errorMsg,{icon:2},function (index) {
@@ -88,8 +103,151 @@
                 var info = data.data;
                 $("#title").html(info.title);
                 $("#content").html(info.content);
+                $("#sender").html(info.senderName);
+                $("#sendTime").html(info.sendTime);
             }
         })
+    }
+
+    function getFloors() {
+        $.get("/common/floors/list?topicId="+topicId,function (data) {
+            if (!data.success){
+                layer.confirm(data.errorMsg,{icon:2},function (index) {
+                    layer.close(index);
+                })
+            } else {
+                if ((data.data.pageNum <= data.data.pages) && (data.data.pageNum > 0))
+                {
+                    loadData(data);
+                    buildPagenationButtons(data.data.pages,data.data.pageNum);
+                }
+            }
+        });
+    }
+
+    function loadData(data) {
+        var floors = data.data.list;
+        var ul = $("#jieda");
+        ul.empty();
+        for (const floor of floors){
+            var li = "<li data-id=\"111\" class=\"jieda-daan\">\n" +
+                "                <div class=\"detail-body jieda-body photos\">\n" +
+                floor.content +
+                "                </div>\n" +
+                "                <div class=\"detail-about detail-about-reply\">\n" +
+                "                    <div class=\"fly-detail-user\" style=\"text-align: right\">\n" +
+                "                        <cite>"+floor.senderName+"</cite>\n" +
+                "                    </div>\n" +
+                "                    <div class=\"detail-hits\" style=\"text-align: right\">\n" +
+                "                        <span>"+floor.sendTime+"</span>\n" +
+                "                    </div>\n" +
+                "                    <br>\n" +
+                "                </div>\n" +
+                // "                <div class=\"jieda-reply\">\n" +
+                // "                    <span type=\"reply\">\n" +
+                // "                        <i class=\"iconfont icon-svgmoban53\"></i>\n" +
+                // "                         回复\n" +
+                // "                    </span>\n" +
+                // "                </div>\n" +
+                "            </li>";
+            ul.append($(li));
+        }
+    }
+
+    function buildPagenationButtons(totalPageNum,currentPageNum){
+        //上一页
+        var prev = "<a href='javascript:;' onclick='toPage("+(currentPageNum-1)+")'>上一页</a>";
+        prev = $(prev);
+        if (currentPageNum == 1)
+            prev[0].disabled = true;
+        //下一页
+        var next = "<a href='javascript:;' onclick='toPage("+(currentPageNum+1)+")'>下一页</a>";
+        next = $(next);
+        if (currentPageNum == totalPageNum)
+            next[0].disabled = true;
+
+        var btns = "";
+        //构建按钮组
+        if (totalPageNum <= 5)
+        {
+            for (let i = 1; i <= totalPageNum; i++) {
+                if (i != currentPageNum)
+                    btns += "<a href='javascript:;' onclick='toPage("+i+")'>"+i+"</a>"
+                else{
+                    btns += "<span class='laypage-curr'>"+i+"</span>";
+                }
+            }
+        }
+        else if (currentPageNum <= 3)
+        {
+            for (let i = 1; i <= 5; i++) {
+                if (i != currentPageNum)
+                    btns += "<a href='javascript:;' onclick='toPage("+i+")'>"+i+"</a>"
+                else{
+                    btns += "<span class='laypage-curr'>"+i+"</span>";
+                }
+            }
+        }
+        else if (currentPageNum >= totalPageNum - 2)
+        {
+            for (let i = totalPageNum - 4; i <= totalPageNum; i++) {
+                if (i != currentPageNum)
+                    btns += "<a href='javascript:;' onclick='toPage("+i+")'>"+i+"</a>"
+                else{
+                    btns += "<span class='laypage-curr'>"+i+"</span>";
+                }
+            }
+        }
+        else
+        {
+            for (let i = currentPageNum - 2; i <= currentPageNum + 2; i++) {
+                if (i != currentPageNum)
+                    btns += "<a href='javascript:;' onclick='toPage("+i+")'>"+i+"</a>"
+                else{
+                    btns += "<span class='laypage-curr'>"+i+"</span>";
+                }
+            }
+        }
+        btns = $(btns);
+        $("#pagination").empty();
+        $("#pagination").append(prev)
+            .append(btns)
+            .append(next);
+
+
+    }
+
+    function toPage(pageNum){
+        $.get("/common/floors/list?topicId="+topicId+"&pageNum="+pageNum,function (data) {
+            if (!data.success){
+                layer.confirm(data.errorMsg,{icon:2},function (index) {
+                    layer.close(index);
+                })
+            } else {
+                if ((data.data.pageNum <= data.data.pages) && (data.data.pageNum > 0))
+                {
+                    loadData(data);
+                    buildPagenationButtons(data.data.pages,data.data.pageNum);
+                }
+            }
+        });
+    }
+
+    function floorSend() {
+        var content = editor.txt.html();
+        $.post("/common/floorSend",
+            {
+                topicId:topicId,
+                content:content
+            },
+            function (data) {
+                if(data.success){
+                    layer.msg("评论发布成功");
+                    editor.txt.html('');
+                    getFloors();
+                }
+            }
+        )
     }
 </script>
 </body>

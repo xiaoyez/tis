@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 @Data
 public class Floor{
@@ -20,6 +21,9 @@ public class Floor{
 	private Integer floor;
 	@Column
 	private java.time.LocalDateTime sendTime;
+
+	@Transient
+	private String senderName;
 
 }
 
