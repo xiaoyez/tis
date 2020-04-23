@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>发布信息</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+    <link rel="stylesheet" href="/static/css/global.css">
+</head>
+<body>
+<div th:include="/common/header::header"></div>
+<div class="layui-container fly-marginTop fly-user-main">
+    <ul th:include="/common/teacher_menu::menu"
+        class="layui-nav layui-nav-tree layui-inline" lay-filter="test"></ul>
+    <div class="fly-panel fly-panel-user" pad20>
+        <div>
+            <input id="titleInput" type="text" required class="layui-input" placeholder="请输入标题">
+        </div>
+        <br>
+        <div id="editor"></div>
+        <br>
+        <div style="text-align: center">
+            <button onclick="topicSend()" class="layui-btn" style="width: 10%">发布</button>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+<script src="/static/wangEditor-3.1.1/release/wangEditor.min.js"></script>
+<script src="/static/jquery-1.12.4.js"></script>
+<script>
+    var E = window.wangEditor
+    var editor = new E('#editor')
+    // 或者 var editor = new E( document.getElementById('editor') )
+    editor.create()
+
+    var layer;
+    layui.use('layer', function () {
+        layer = layui.layer;
+    });
+
+
+    function topicSend() {
+        var title = $("#titleInput").val();
+        var content = editor.txt.html();
+        $.post("/common/topicSend",
+            {
+                title:title,
+                content:content
+            },
+            function (data) {
+                if(data.success){
+                    layer.confirm("讨论发布成功",{icon:1},function (index) {
+                        layer.close(index);
+                        $("#titleInput").val("");
+                        location.href = "/common/discuss/topic_view?topicId="+data.data.id;
+                    })
+                }
+            }
+        )
+    }
+</script>
+</body>
+</html>

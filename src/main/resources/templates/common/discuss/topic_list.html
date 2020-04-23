@@ -12,8 +12,40 @@
     <ul th:include="/common/student_menu::menu"
         class="layui-nav layui-nav-tree layui-inline" lay-filter="test"></ul>
     <div class="fly-panel fly-panel-user" pad20>
+        <ul id="topicList" class="fly-list">
 
+        </ul>
+        <ul class="layui-fixbar">
+            <li class="layui-icon" lay-type="bar1" >
+                <a href="/common/discuss/topic_send"></a>
+            </li>
+        </ul>
     </div>
 </div>
+<script src="/static/jquery-1.12.4.js"></script>
+<script>
+    function init() {
+        $.get("/common/topic/list",function (data) {
+            if(data.success){
+                var topicPageInfo = data.data;
+                var topicList = topicPageInfo.list;
+                for(const topic of topicList){
+                    var li = "<li>\n" +
+                        "                <h2>\n" +
+                        "                    <a href=\"/common/discuss/topic_view?topicId="+topic.id+"\">"+topic.title+"</a>\n" +
+                        "                </h2>\n" +
+                        "                <div class=\"fly-list-info\">\n" +
+                        "                    <cite>"+topic.senderName+"</cite>\n" +
+                        "                    <span>"+topic.sendTime+"</span>\n" +
+                        "                </div>\n" +
+                        "            </li>";
+                    li = $(li);
+                    $("#topicList").append(li);
+                }
+            }
+        })
+    }
+    init();
+</script>
 </body>
 </html>
