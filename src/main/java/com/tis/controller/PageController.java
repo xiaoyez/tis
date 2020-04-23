@@ -51,4 +51,12 @@ public String toMemberPage(HttpServletRequest request)
         url = url.substring(url.indexOf("/","https://".length()));
         return url;
     }
+
+    @GetMapping("/common/**")
+    public String toCommonPage(HttpServletRequest request)
+    {
+        String url = request.getRequestURL().toString();
+        url = url.substring(url.indexOf("/","https://".length()));
+        return url;
+    }
 }
