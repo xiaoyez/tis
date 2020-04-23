@@ -25,16 +25,13 @@ public class PageController {
         return page;
     }
 
-
-//
-//
-@GetMapping("/member/**")
-public String toMemberPage(HttpServletRequest request)
-{
-    String url = request.getRequestURL().toString();
-    url = url.substring(url.indexOf("/","https://".length()));
-    return url;
-}
+    @GetMapping("/member/**")
+    public String toMemberPage(HttpServletRequest request)
+    {
+        String url = request.getRequestURL().toString();
+        url = url.substring(url.indexOf("/","https://".length()));
+        return url;
+    }
 
     @GetMapping("/admin/**")
     public String toAdminPage(HttpServletRequest request)
@@ -46,6 +43,14 @@ public String toMemberPage(HttpServletRequest request)
 
     @GetMapping("/student/**")
     public String toStudentPage(HttpServletRequest request)
+    {
+        String url = request.getRequestURL().toString();
+        url = url.substring(url.indexOf("/","https://".length()));
+        return url;
+    }
+
+    @GetMapping("/common/**")
+    public String toCommonPage(HttpServletRequest request)
     {
         String url = request.getRequestURL().toString();
         url = url.substring(url.indexOf("/","https://".length()));
